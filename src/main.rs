@@ -52,7 +52,7 @@ fn main() {
             ..default()
         }))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.0))
-        .add_plugins(RapierDebugRenderPlugin::default())
+        // .add_plugins(RapierDebugRenderPlugin::default())
         .add_systems(Startup, setup)
         .add_systems(Update, (process_player_input, handle_collision_events, check_player_health, process_pipes))
         .add_event::<CollisionEvent>()
@@ -120,9 +120,9 @@ fn setup(
 
     commands
         .spawn(RigidBody::Dynamic)
-        // .insert(LockedAxes::ROTATION_LOCKED)
         .insert(Damping {
-            angular_damping: 5.0,
+            angular_damping: 0.0,
+            linear_damping: 0.0,
             ..default()
         })
         .insert(GravityScale(8.0))
@@ -148,7 +148,9 @@ fn setup(
         if n % 2 == 0 {
             // lower pipes
 
-            y_offset = rng.gen_range(-300..-160) as f64;
+            y_offset = rng
+                .gen_range(-SCREEN_HEIGHT as i32 / 2..-160)
+                as f64;
 
             commands
                 .spawn(RigidBody::KinematicVelocityBased)
@@ -226,9 +228,14 @@ fn process_player_input(
 
     if input.just_pressed(KeyCode::Space)
         && player.1.translation.y < SCREEN_HEIGHT / 2.0
+        && player.2.current > 0
     {
         player.0.linvel = Vec2::new(0.0, 300.0);
     }
+
+    player.1.rotation = Quat::from_rotation_z(
+        player.0.linvel.y / 300.0 * 0.5,
+    );
 
     if input.just_pressed(KeyCode::R) {
         info!("Restarting game");
@@ -247,6 +254,7 @@ fn process_player_input(
         player.0.angvel = 0.0;
         player.2.current = 1;
         player.1.translation = Vec3::new(0.0, 0.0, 0.0);
+        player.1.rotation = Quat::from_rotation_z(0.0);
 
         rapier_config.physics_pipeline_active = true; // resume the physics pipeline
     }
@@ -258,11 +266,14 @@ fn process_pipes(
     let mut y_offset: f64 = 0.0;
 
     for (mut transform, pipe, _) in query.iter_mut() {
-        if transform.translation.x < -300.0 {
+        if transform.translation.x
+            <= -(SCREEN_WIDTH / 2.0) - (50.0 * 2.0)
+        // 50 is the pipe's width
+        {
             if pipe.pipe_type == PipeType::DOWN {
-                y_offset = rand::thread_rng()
-                    .gen_range(-300..-160)
-                    as f64;
+                y_offset = rand::thread_rng().gen_range(
+                    -SCREEN_HEIGHT as i32 / 2..-160,
+                ) as f64;
 
                 transform.translation.y = y_offset as f32;
             } else {
