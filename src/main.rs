@@ -72,6 +72,9 @@ fn setup(
     let bg: Handle<Image> =
         asset_server.load("sprites/background-day.png");
 
+    let base: Handle<Image> =
+        asset_server.load("sprites/base.png");
+
     // let _down_sprite: Handle<Image> =
     //     asset_server.load("sprites/yellowbird-midflap.png");
 
@@ -102,6 +105,30 @@ fn setup(
         ..default()
     });
 
+    // commands.spawn(RigidBody::Fixed)
+    // .spawn(SpriteBundle {
+    //     texture: base,
+    //     transform: Transform {
+    //         translation: Vec3::new(0.0, -300.0, 0.0),
+    //         scale: Vec3::new(1.5, 1.0, 1.0),
+    //         ..default()
+    //     },
+    //     ..default()
+    // });
+
+    commands
+        .spawn(RigidBody::Fixed)
+        .insert(Collider::cuboid(SCREEN_WIDTH / 2.0, 55.0))
+        .insert(SpriteBundle {
+            texture: base,
+            transform: Transform {
+                translation: Vec3::new(0.0, -300.0, 1.0),
+                scale: Vec3::new(1.5, 1.0, 1.0),
+                ..default()
+            },
+            ..default()
+        });
+
     commands
         .spawn(RigidBody::Dynamic)
         // .insert(LockedAxes::ROTATION_LOCKED)
@@ -117,11 +144,11 @@ fn setup(
             linvel: Vec2::new(0.0, 0.0),
             angvel: 0.0,
         })
-        .insert(Player {})
+        .insert(Player)
         .insert(Health { current: 1 })
         .insert(SpriteBundle {
             texture: default_sprite,
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
+            transform: Transform::from_xyz(0.0, 0.0, 2.0),
             ..default()
         });
 
