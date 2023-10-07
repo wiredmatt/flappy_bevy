@@ -13,8 +13,7 @@ struct Pipe;
 
 #[derive(Component)]
 struct Health {
-    pub max: u8,
-    pub current: u8,
+    pub current: i8, // make it signed to prevent panic when it goes below 0
 }
 
 const PIPES_COUNT: i8 = 1;
@@ -38,7 +37,7 @@ fn main() {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.0))
         .add_plugins(RapierDebugRenderPlugin::default())
         .add_systems(Startup, setup)
-        .add_systems(Update, (process_player_input, display_events))
+        .add_systems(Update, (process_player_input, display_events, check_player_health))
         .add_event::<CollisionEvent>()
         .run();
 }
@@ -78,7 +77,7 @@ fn setup(
             angvel: 0.0,
         })
         .insert(Player {})
-        .insert(Health { current: 1, max: 1 })
+        .insert(Health { current: 1 })
         .insert(SpriteBundle {
             texture: default_sprite,
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
@@ -110,12 +109,40 @@ fn setup(
 
 fn process_player_input(
     input: Res<Input<KeyCode>>,
-    mut query: Query<&mut Velocity, With<Player>>,
+    mut query: Query<(
+        &mut Velocity,
+        &mut Transform,
+        &mut Health,
+        With<Player>,
+    )>,
+    mut rapier_config: ResMut<RapierConfiguration>, // we access the rapier config to resume the physics pipeline
 ) {
-    let mut player_velocity = query.single_mut();
+    let mut player = query.single_mut();
 
     if input.just_pressed(KeyCode::Space) {
-        player_velocity.linvel = Vec2::new(0.0, 300.0);
+        player.0.linvel = Vec2::new(0.0, 300.0);
+    }
+
+    if input.just_pressed(KeyCode::R) {
+        info!("Restarting game");
+        rapier_config.physics_pipeline_active = true; // resume the physics pipeline
+
+        player.0.linvel = Vec2::new(0.0, 0.0);
+        player.0.angvel = 0.0;
+        player.2.current = 1;
+        player.1.translation = Vec3::new(0.0, 0.0, 0.0);
+    }
+}
+
+fn check_player_health(
+    mut player: Query<(&mut Health, Entity, With<Player>)>,
+    mut rapier_config: ResMut<RapierConfiguration>, // we access the rapier config to stop the physics pipeline
+) {
+    let mut _player = player.single_mut();
+
+    if _player.0.current <= 0 {
+        info!("Player died");
+        rapier_config.physics_pipeline_active = false; // stop the physics pipeline
     }
 }
 
