@@ -33,6 +33,7 @@ const SCREEN_HEIGHT: f32 = 600.0;
 const PIPES_COUNT: i8 = 8;
 const VERTICAL_SPACE_BETWEEN_PIPES: f32 = 120.0;
 const PIPE_SPEED: f32 = -120.0;
+const JUMP_FORCE: f32 = 300.0;
 
 fn main() {
     App::new()
@@ -75,9 +76,9 @@ fn setup(
     let base: Handle<Image> =
         asset_server.load("sprites/base.png");
 
+    // could get these in a texture atlas and make the animations
     // let _down_sprite: Handle<Image> =
     //     asset_server.load("sprites/yellowbird-midflap.png");
-
     // let _up_sprite: Handle<Image> =
     //     asset_server.load("sprites/yellowbird-midflap.png");
 
@@ -163,7 +164,8 @@ fn setup(
                 .insert(SpriteBundle {
                     texture: pipe_sprite.clone(),
                     transform: Transform::from_xyz(
-                        200.0 + n as f32 * 70.0,
+                        SCREEN_WIDTH / 2.0
+                            + n as f32 * 70.0,
                         y_offset as f32,
                         0.0,
                     ),
@@ -171,7 +173,8 @@ fn setup(
                 })
                 .insert(Pipe {
                     pipe_type: PipeType::DOWN,
-                    original_x: 200.0 + n as f32 * 70.0,
+                    original_x: SCREEN_WIDTH / 2.0
+                        + n as f32 * 70.0,
                 });
         } else {
             // upper pipes
@@ -186,7 +189,8 @@ fn setup(
                 .insert(SpriteBundle {
                     texture: pipe_sprite.clone(),
                     transform: Transform::from_xyz(
-                        200.0 + (n - 1) as f32 * 70.0,
+                        SCREEN_WIDTH / 2.0
+                            + (n - 1) as f32 * 70.0,
                         y_offset as f32
                             + 320.0 // collider's half_y * 2
                             + VERTICAL_SPACE_BETWEEN_PIPES,
@@ -194,13 +198,13 @@ fn setup(
                     ),
                     sprite: Sprite {
                         flip_y: true,
-                        ..Default::default()
+                        ..default()
                     },
                     ..default()
                 })
                 .insert(Pipe {
                     pipe_type: PipeType::UP,
-                    original_x: 200.0
+                    original_x: SCREEN_WIDTH / 2.0
                         + (n - 1) as f32 * 70.0,
                 });
         }
@@ -230,11 +234,13 @@ fn process_player_input(
         && player.1.translation.y < SCREEN_HEIGHT / 2.0
         && player.2.current > 0
     {
-        player.0.linvel = Vec2::new(0.0, 300.0);
+        player.0.linvel = Vec2::new(0.0, JUMP_FORCE);
     }
 
+    // would be best to use a Variable Curve, or a Tween here
+    // https://bevyengine.org/examples/Animation/animated-transform/
     player.1.rotation = Quat::from_rotation_z(
-        player.0.linvel.y / 300.0 * 0.5,
+        player.0.linvel.y / JUMP_FORCE * 0.5,
     );
 
     if input.just_pressed(KeyCode::R) {
@@ -282,7 +288,8 @@ fn process_pipes(
                     + VERTICAL_SPACE_BETWEEN_PIPES;
             }
 
-            transform.translation.x = 200.0 + 70.0;
+            transform.translation.x =
+                SCREEN_WIDTH / 2.0 + 70.0;
         }
     }
 }
