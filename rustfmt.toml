@@ -1,0 +1,3 @@
+max_width = 60
+chain_width = 40
+brace_style = "PreferSameLine"
