@@ -77,7 +77,11 @@ fn setup(
 
     commands.spawn(Camera2dBundle {
         projection: OrthographicProjection {
-            scaling_mode: ScalingMode::WindowSize(1.0),
+            scaling_mode: ScalingMode::AutoMax {
+                // use automax to try to scale the camera to the window size. Not very responsive but it works for the most part. It would be great to achieve lib-gdx's combined mode effect.
+                max_width: SCREEN_WIDTH,
+                max_height: SCREEN_HEIGHT,
+            },
             far: 1000.0,
             near: -1000.0,
             ..default()
