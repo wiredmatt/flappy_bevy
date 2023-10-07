@@ -69,6 +69,9 @@ fn setup(
     let pipe_sprite: Handle<Image> =
         asset_server.load("sprites/pipe-green.png");
 
+    let bg: Handle<Image> =
+        asset_server.load("sprites/background-day.png");
+
     // let _down_sprite: Handle<Image> =
     //     asset_server.load("sprites/yellowbird-midflap.png");
 
@@ -84,6 +87,16 @@ fn setup(
             },
             far: 1000.0,
             near: -1000.0,
+            ..default()
+        },
+        ..default()
+    });
+
+    commands.spawn(SpriteBundle {
+        texture: bg,
+        transform: Transform {
+            translation: Vec3::new(0.0, 0.0, -10.0),
+            scale: Vec3::new(1.5, 1.5, 1.0),
             ..default()
         },
         ..default()
