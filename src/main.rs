@@ -105,17 +105,6 @@ fn setup(
         ..default()
     });
 
-    // commands.spawn(RigidBody::Fixed)
-    // .spawn(SpriteBundle {
-    //     texture: base,
-    //     transform: Transform {
-    //         translation: Vec3::new(0.0, -300.0, 0.0),
-    //         scale: Vec3::new(1.5, 1.0, 1.0),
-    //         ..default()
-    //     },
-    //     ..default()
-    // });
-
     commands
         .spawn(RigidBody::Fixed)
         .insert(Collider::cuboid(SCREEN_WIDTH / 2.0, 55.0))
@@ -235,7 +224,9 @@ fn process_player_input(
 ) {
     let mut player = query.single_mut();
 
-    if input.just_pressed(KeyCode::Space) {
+    if input.just_pressed(KeyCode::Space)
+        && player.1.translation.y < SCREEN_HEIGHT / 2.0
+    {
         player.0.linvel = Vec2::new(0.0, 300.0);
     }
 
