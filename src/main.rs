@@ -54,6 +54,7 @@ fn main() {
                         fit_canvas_to_parent: false,
                         prevent_default_event_handling: false,
                         mode: WindowMode::Windowed,
+                        focused: true,
                         ..default()
                     }),
                     ..default()
@@ -263,6 +264,7 @@ fn process_player_input(
         &mut Velocity,
         &mut Transform,
         &mut Health,
+        &mut Score,
         With<Player>,
         Without<Pipe>,
     )>,
@@ -296,6 +298,7 @@ fn process_player_input(
         player.0.linvel = Vec2::new(0.0, 0.0);
         player.0.angvel = 0.0;
         player.2.current = 1;
+        player.3.current = 0;
         player.1.translation = Vec3::new(0.0, 0.0, 0.0);
         player.1.rotation = Quat::from_rotation_z(0.0);
 
