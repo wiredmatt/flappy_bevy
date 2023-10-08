@@ -116,6 +116,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn(RigidBody::Fixed)
         .insert(Collider::cuboid(SCREEN_WIDTH / 2.0, 55.0))
+        .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(SpriteBundle {
             texture: base,
             transform: Transform {
@@ -348,8 +349,8 @@ fn handle_collision_events(
                 let mut _player = player.single_mut();
 
                 // use the flags to check if it's collision or sensor
-                if flags.contains(CollisionEventFlags::SENSOR) && e1.index() == _player.1.index()
-                    || e2.index() == _player.1.index()
+                if flags.contains(CollisionEventFlags::SENSOR)
+                    && (e1.index() == _player.1.index() || e2.index() == _player.1.index())
                 {
                     info!("Player passed through pipes");
 
