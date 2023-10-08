@@ -51,7 +51,7 @@ fn main() {
                         title: "Flappy Bevy".into(),
                         resolution: (SCREEN_WIDTH, SCREEN_HEIGHT).into(),
                         present_mode: PresentMode::AutoVsync,
-                        fit_canvas_to_parent: true,
+                        fit_canvas_to_parent: false,
                         prevent_default_event_handling: false,
                         mode: WindowMode::Windowed,
                         ..default()
